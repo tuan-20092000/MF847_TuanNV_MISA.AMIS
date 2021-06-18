@@ -13,7 +13,7 @@
         <div class="item-icon">
           <img class="icon" src="../Resource/img/sumary.svg" alt="" />
         </div>
-        <router-link to="/about"><div class="item-title">Tổng quan</div></router-link>
+        <router-link to="/"><div class="item-title">Tổng quan</div></router-link>
       </div>
 
       <div class="item">
