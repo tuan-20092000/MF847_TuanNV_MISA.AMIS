@@ -1,8 +1,5 @@
 <template>
-    <div>
-        <div v-if="loading" class="wrap-message-form">
-            <img style="" src="../Resource/loading.svg" alt="">
-        </div>
+    <div class="container-box">
         <div v-if="warning" class="wrap-message-form">
             <div class="message-box">
                 <div class="div-content">
@@ -16,8 +13,8 @@
                 </div>
                 <div class="space"></div>
                 <div class="mess-footer">
-                    <button v-on:click="cancelMessageBox()" class="btn-no">Hủy</button>
-                    <button v-on:click="deleteEmployee()" class="btn-ok">Có</button>
+                    <button v-on:click="cancelMessageBox()" ref="btnNo" class="btn-no">Hủy</button>
+                    <button v-on:click="deleteEmployee()" ref="btnOk" class="btn-ok">Có</button>
                 </div>
             </div>
         </div>
@@ -34,14 +31,45 @@
                 </div>
                 <div class="space"></div>
                 <div class="mess-footer">
-                    <button v-on:click="cancelErrorBox()" class="btn-ok">Đồng ý</button>
+                    <button v-on:click="cancelErrorBox()" ref="btnAgree" class="btn-ok">Đồng ý</button>
                 </div>
+            </div>
+        </div>
+        <div v-if="warningDataChange" class="wrap-message-form">
+            <div class="message-box">
+                <div class="div-content">
+                    <div class="icon-message">
+                        <img src="../Resource/img/warning.svg" alt="">
+                    </div>
+                    <div class="message-content">
+                        <div>Dữ liệu đã thay đổi, bạn có chắc muốn đóng không?</div>
+                    </div>
+                </div>
+                <div class="space"></div>
+                <div class="mess-footer">
+                    <button v-on:click="()=>{this.warningDataChange = false}" ref="btnNo" class="btn-no">Hủy</button>
+                    <button v-on:click="cancelFormDetail()" ref="btnOk" class="btn-ok">Có</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="successBox" class="success-box">
+            <div style="height: 36px;display:flex;flex-direction:row;margin-bottom:25px;">
+                <div style="height:100%; width:36px;">
+                    <img src="../Resource/img/success.svg" alt="">
+                </div>
+                <div class="success-content">
+                    <span>{{successMode}} thành công</span>
+                </div>
+            </div>
+            <div class="space" style="margin-bottom:10px;"></div>
+            <div>
+                <button v-on:click="cancelSuccessBox()" class="btn-ok">OK</button>
             </div>
         </div>
     </div>
 </template>
 <script>
-import EventBus from './../main.js';
+import EventBus from '../main.js';
 export default {
     data() {
         return {
@@ -49,7 +77,10 @@ export default {
             messageContent: null, // nội dung thông báo cho người dùng
             error: false, // ẩn hiện box báo lỗi
             field: null, // trường cần focus sau khi tắt message-box
-            loading: true,
+            warningDataChange: false, //ẩn hiện message box cảnh báo khi tắt form detail nếu dữ liệu thay đổi
+            successBox: false,
+            successMode: null,
+
             // nhân viên hiển thị trên form warning
             employee : {
               employeeCode : null,
@@ -78,6 +109,7 @@ export default {
             this.warning = false;
         },
 
+        // tắt form báo lỗi
         cancelErrorBox(){
             this.error = false;
             if(this.field !=null){
@@ -92,7 +124,7 @@ export default {
             this.warning = true;
         },
 
-        // hàm xóa nhân viên
+        // hàm emit xóa nhân viên
         deleteEmployee(){
             EventBus.$emit("deleteEmployee", this.employee);
             this.warning = false;
@@ -103,32 +135,51 @@ export default {
             this.messageContent = message;
             this.error = true;
             this.field = field;
+        },
+
+        // hàm emit tắt form detail
+        cancelFormDetail(){
+            this.warningDataChange = false;
+            EventBus.$emit("cancelFormDetail");
+        },
+
+        showSuccessBox(){
+            this.successBox = true;
+            setTimeout(()=>
+                this.successBox = false, 2500
+            )
+        },
+
+        // hàm tắt success box
+        cancelSuccessBox(){
+            this.successBox = false;
         }
     },
 
     mounted() {
-        // sự kiện ẩn hiện loading
-        EventBus.$on("onLoading", () => {
-            this.loading = true;
-        })
-
-        // sự kiện tắt loading
-        EventBus.$on("stopLoading", () => {
-            this.loading = false;
-        })
-
         // lắng nghe sự kiện hiện form cảnh báo
         EventBus.$on("showWarning", (employee) => {
             this.showWarning(employee);
-        })
+        });
 
         // lắng nghe sự kiện hiện thông báo lỗi
         EventBus.$on("showError", (content ,field)=> {
-           this.showError(content, field);
+            this.showError(content, field);
+        });
+
+        // lắng nghe sự kiện hiện form cảnh báo dữ liệu thay đổi
+        EventBus.$on("showWarningDataChange", ()=>{
+            this.warningDataChange = true;
+        });
+
+        // lắng nghe sự kiện hiện success box
+        EventBus.$on("showSuccessBox", (mode)=>{
+            this.successMode = mode;
+            this.showSuccessBox();
         })
     }
 }
 </script>
 
-<style src="../css/loading.css"></style>
+<style src="../css/messagebox.css"></style>
 <style src="../css/googlefont.css"></style>

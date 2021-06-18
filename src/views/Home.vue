@@ -1,19 +1,17 @@
 <template>
   <div>
-    <Main/>
-    <Loading />
+    <Main />
   </div>
 </template>
 
 <script>
 import Main from "../components/Main.vue";
 import EmployeeDetail from "../components/EmployeeDetail.vue";
-import Loading from "../components/Loading.vue";
 export default {
   name: "Home",
 
   components: {
-    Main, EmployeeDetail, Loading,
+    Main, EmployeeDetail, 
   },
 };
 </script>

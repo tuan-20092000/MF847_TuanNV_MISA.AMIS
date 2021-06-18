@@ -34,7 +34,7 @@
   font-size: 16px;
 }
 
-.wrap-message-form .message-box .space{
+.container-box .space{
   border-bottom: 1px solid #8d9096;
   margin-bottom: 20px;
 }
@@ -60,7 +60,7 @@
   background-color: #bbbcbc;
 }
 
-.message-box .mess-footer .btn-ok{
+.container-box .btn-ok{
   border: 1px solid transparent;
   height: 35px;
   padding: 8px 20px;
@@ -70,8 +70,12 @@
   border-radius: 3px;
 }
 
-.message-box .mess-footer .btn-ok:hover{
+.container-box .btn-ok:hover{
   background-color: #35bf22;
+}
+
+.container-box .btn-ok:active{
+  background-color: #248b15;
 }
 
 .message-box .div-content{
@@ -89,5 +93,30 @@
   padding: 12px 0px 0px 16px;
   overflow: auto;
   max-height: 400px;
-  margin-bottom: 32px;
+}
+
+
+.message-box .btn:focus{
+  border: 1px solid #000;
+}
+
+.success-box{
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 350px;
+  height: 150px;
+  background-color: #fff;
+  z-index: 1000;
+  border: 1px solid #c7c7c7;
+  padding: 20px ;
+}
+
+.container-box .success-content{
+  padding-left: 20px;
+  font-size: 16px;
+  font-family: 'notosans-bold';
+  flex: 1;
+  display: flex;
+  align-items: center;
 }

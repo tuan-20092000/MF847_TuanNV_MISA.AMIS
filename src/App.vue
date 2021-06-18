@@ -10,19 +10,20 @@
         </div>
     </div>
     <EmployeeDetail />
+    <MesageBox />
   </div>
 </template>
 
 <script>
 import SideBar from './components/SideBar.vue';
 import Header from './components/Header.vue';
-
+import MesageBox from './components/MessageBox.vue';
 import EmployeeDetail from './components/EmployeeDetail.vue';
 
 export default {
 
   components: {
-    SideBar, Header, EmployeeDetail,
+    SideBar, Header, EmployeeDetail, MesageBox,
   },
 }
 </script>

@@ -5,6 +5,7 @@
     background-color:#393a3d;
     display: flex;
     flex-direction: column;
+    z-index: 20000;
   }
   
   .logo-container {

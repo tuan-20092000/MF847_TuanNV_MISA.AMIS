@@ -48,8 +48,7 @@
   }
   
   .main-title-btn button span {
-    margin-right: 10px;
-    font-family: 'notosans-bold';
+    font-family: 'notosans-semibold';
     font-size: 13px;
     font-weight: 600;
   }
@@ -80,10 +79,15 @@
     height: 36px;
     width: 72px;
     border-radius: 30px 0px 0px 30px;
-    border: 1px solid #8d9096;
     color: #ffffff;
   }
   
+  .main-title-btn .div-img-drop-down{
+    border-left:1px solid #fff;
+    padding-right:8px;
+    padding-top:2px;
+  }
+
   .main-title-btn .btn-add:hover{
     background-color: #35bf22;
     cursor: pointer;
@@ -92,7 +96,6 @@
   .main-title-btn .btn-excel{
     width: 46px;
     height: 36px;
-    border: 1px solid #8d9096;
     border-radius: 0px 30px 30px 0px;
     background-color: #2ca01c;
   }
@@ -216,4 +219,25 @@
   .tool-tip .option:hover{
     background-color: #e8e9ec;
     color: #08bf1e;
+  }
+
+  .wrap-loading{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .loading{
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }

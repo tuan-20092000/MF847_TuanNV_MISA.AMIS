@@ -11,7 +11,7 @@
       <div class="div-tool">
         <img src="../Resource/img/support.svg" alt="" title="Giúp (F1)" />
         <div class="inline" v-on:click="cancelFormDetail()">
-          <img src="../Resource/img/x.svg" alt="" title="Đóng (ESC)" />
+          <img src="../Resource/img/x.svg" alt="" data-title="Đóng (ESC)" />
         </div>
       </div>
       <div class="form-header">
@@ -298,7 +298,7 @@
       </div>
       <div class="form-footer">
         <div class="div-line"></div>
-        <button v-on:click="cancelFormDetail()" class="btn-cancel btn-primary">
+        <button v-on:click="preCancelForm()" class="btn-cancel btn-primary">
           Hủy
         </button>
         <div class="float-right">
@@ -313,6 +313,11 @@
           <button class="btn-focus" id="btn-last" @keyup.tab="tab()"></button>
         </div>
       </div>
+    </div>
+    <div v-if="loading" class="wrap-loading">
+        <div class="loading" style="width:fit-content;height:32px;">
+          <img style="" src="../Resource/loading.svg" alt="">
+        </div>
     </div>
   </div>
 </template>
@@ -351,6 +356,8 @@ export default {
         email: null,
       },
 
+      cEmployee: null, // clone employee để ktra xem dữ liệu thay đổi hay không
+
       fieldMissingData: null, // trường bắt buộc nhập còn trống đầu tiên
       messageContent: null, // nội dung tin nhắn cần show cho người dùng nếu cần
 
@@ -362,6 +369,7 @@ export default {
 
       identityDate_PK: null, // ngày sinh để v-model với date picker
 
+      loading: false,
     };
   },
 
@@ -374,6 +382,7 @@ export default {
     showForm() {
       // mở form
       this.showFormDetail = true;
+      this.cEmployee = {...this.employee};
       // auto focus vào input đầu và bôi đen hết text bên trong nếu có
       this.focusAndSelectAll();
     },
@@ -458,6 +467,16 @@ export default {
       this.increaseCode();
     },
 
+    preCancelForm(){
+      let employee1 = JSON.stringify(this.cEmployee);
+      let employee2 = JSON.stringify(this.employee);
+      if(employee1 != employee2){
+        EventBus.$emit("showWarningDataChange");
+      }else{
+        this.cancelFormDetail();
+      }
+    },
+
     //hàm reset form
     resetForm() {
       // null employee
@@ -526,7 +545,7 @@ export default {
         employee.identityDate = me.identityDate_PK;
       }
       let employeeCode = employee.employeeCode.toUpperCase();
-      // chèn thêm số 0 vào trước số mã nhân viên nếu mã chưa đủ 7 kí tự
+      // chèn thêm số 0 vào trước số mã nhân viên nếu mã chưa đủ 8 kí tự
       employeeCode = employeeCode.substring(0, 2) + employeeCode.substr(2).padStart(5, "0");
       employee.employeeCode = employeeCode;
       return employee;
@@ -538,25 +557,31 @@ export default {
       // xử lý (ngày tháng) trước khi gửi
       let employee = me.convertPreSend(me.employee);
       // trường hợp thêm mới
-      EventBus.$emit("onLoading");
+      me.loading = true;
       if (me.formMode == "add") {
         axios
           .post("http://localhost:8080/api/v1/Employees", employee)
           .then(async (response) => {
             console.log(response);
             // reset form và load lại dữ liệu
-            EventBus.$emit("loadDataServer");
+            await EventBus.$emit("loadDataServer");
             // nếu là ấn save thì ẩn form
-            if (e == "save") me.cancelFormDetail();
+            let mode = "Thêm mới";
+            EventBus.$emit("showSuccessBox", mode);
+            if (e == "save"){
+              me.cancelFormDetail();
+              this.loading = false;
+            }
             else {
               me.resetForm();
               await me.increaseCode();
+              me.loading = false
               me.focusAndSelectAll();
             }
           })
           .catch((error) => {
             console.log(error);
-            EventBus.$emit("stopLoading");
+            this.loading = false;
             let message = error.response.data.messengers[0],
               field = error.response.data.eFieldError;
             EventBus.$emit("showError", message, field);
@@ -571,42 +596,28 @@ export default {
           .put("http://localhost:8080/api/v1/Employees", employee)
           .then(async (response) => {
             // reset form và load lại dữ liệu
-            console.log(response);
+            await EventBus.$emit("loadDataServer");
+            let mode = "Sửa";
+            EventBus.$emit("showSuccessBox", mode);
             // nếu là ấn save thì ẩn form
-            if (e == "save") me.cancelFormDetail();
+            if (e == "save"){
+              me.cancelFormDetail();
+              this.loading = false;
+            }
             else {
               me.resetForm();
               await me.increaseCode();
+              this.loading = false
               me.focusAndSelectAll();
             }
-            EventBus.$emit("loadDataServer");
           })
           .catch((error) => {
-            EventBus.$emit("stopLoading");
+            this.loading = false;
             let message = error.response.data.messengers[0],
               field = error.response.data.eFieldError;
             EventBus.$emit("showError", message, field);
           });
       }
-    },
-
-    // hàm xóa 1 nhân viên
-    async deleteEmployee(employee) {
-      EventBus.$emit("onLoading");
-      let url = "http://localhost:8080/api/v1/Employees/" + employee.employeeId;
-      await axios
-        .delete(url)
-        .then((res) => {
-          console.log(res);
-          EventBus.$emit("loadDataServer");
-        })
-        .catch((err) => {
-          EventBus.$emit("stopLoading");
-          console.log(err);
-          let message =
-            "Có lỗi xảy ra khi xóa bản ghi, vui lòng liên hệ Misa để được trợ giúp.";
-          EventBus.$emit("showError", message);
-        });
     },
 
     // xử lý sự kiên blur trên các input required
@@ -836,7 +847,8 @@ export default {
       }
     });
 
-    // bắt sự kiên thêm mới nhân viên
+    // bắt sự kiên thêm mới hoặc clone nhân viên nhân viên
+    // nếu là clone thì nhận được 1 employee đầu vào
     EventBus.$on("addEmployee", async (employee) => {
       if(employee != undefined){
         let newCode = me.employee.employeeCode;
@@ -847,13 +859,12 @@ export default {
       me.showForm();
     });
 
-    // bắt sự kiện xóa nhân viên
-    EventBus.$on("deleteEmployee", (employee) => {
-      me.deleteEmployee(employee);
-    });
-
     EventBus.$on("focusAndSelectAll", (field) => {
       me.focusAndSelectAll(field);
+    });
+
+    EventBus.$on("cancelFormDetail",() =>{
+      this.cancelFormDetail();
     });
   },
 

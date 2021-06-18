@@ -277,6 +277,10 @@
   max-width: 100% !important;
 }
 
+.v-select.v-text-field input{
+  max-width: 0px !important;
+}
+
  .wrap-paging .theme--light.v-pagination .v-pagination__item--active{
   color: #000000 !important;
   border: 1px solid #babec5 !important;
