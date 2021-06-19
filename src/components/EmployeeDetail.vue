@@ -2,16 +2,16 @@
   <div
     class="wrap-form"
     v-if="showFormDetail"
-    @keyup.shift.tab.exact="shiftTab()"
-    @keyup.esc="cancelFormDetail"
-    @keyup.ctrl.exact="ctrlPress()"
+    @keyup.esc="preCancelForm()"
+    @keydown.ctrl.83.prevent.stop.exact="save()"
+    @keydown.ctrl.shift.83.prevent.stop.exact="saveAndAdd()"
     @click="clickForm($event)"
   >
     <div class="form-detail" id="form-detail">
       <div class="div-tool">
         <img src="../Resource/img/support.svg" alt="" title="Giúp (F1)" />
-        <div class="inline" v-on:click="cancelFormDetail()">
-          <img src="../Resource/img/x.svg" alt="" data-title="Đóng (ESC)" />
+        <div class="inline" v-on:click="preCancelForm()">
+          <img src="../Resource/img/x.svg" alt="" title="Đóng (ESC)" />
         </div>
       </div>
       <div class="form-header">
@@ -23,14 +23,20 @@
             <div class="form-content-left">
               <div class="row-input">
                 <div class="employeeCode flex-col">
-                  <button class="btn-focus" id="btn-first"></button>
+                  <button
+                    ref="btnFirst"
+                    class="btn-focus"
+                    id="btn-first"
+                    @keyup.shift.tab.exact="shiftTab()"
+                  ></button>
                   <label for="EmployeeCode"
                     >Mã<span style="color: red"> *</span></label
                   >
                   <input
                     v-model="employee.employeeCode"
+                    id="employeeCode"
                     @blur="handleBlur($event)"
-                    class="uppercase"
+                    class="uppercase input-normal"
                     ref="employeeCode"
                     type="text"
                     name="employeeCode"
@@ -44,8 +50,9 @@
                   <input
                     v-model="employee.employeeName"
                     @blur="handleBlur($event)"
+                    id="employeeName"
                     ref="employeeName"
-                    class="capitalize"
+                    class="capitalize input-normal"
                     type="text"
                     name="employeeName"
                     required
@@ -73,6 +80,7 @@
                 <label for="Position">Chức danh</label>
                 <input
                   v-model="employee.employeePosition"
+                  class="input-normal"
                   ref="employeePosition"
                   type="text"
                   name="Position"
@@ -92,11 +100,7 @@
                       autocomplete="off"
                     />
                     <div
-                      @click="
-                        () => {
-                          showDateOfBirth = !showDateOfBirth;
-                        }
-                      "
+                      @click="() => {showDateOfBirth = !showDateOfBirth;}"
                       class="div-icon-datepicker"
                     >
                       <img src="../Resource/img/date_picker.svg" alt="" />
@@ -110,23 +114,16 @@
                       @click:date="chooseDateOfBirth()"
                     >
                       <div class="date_picker_footer">
-                        <a
-                          href="#"
-                          @click="
-                            () => {
-                              employee.dateOfBirth = getCurrentDay();
-                              showDateOfBirth = false;
-                            }
-                          "
-                        >
-                          Hôm nay</a
-                        >
+                        <a href="#" @click="() => {employee.dateOfBirth = getCurrentDay();showDateOfBirth = false;}">
+                          Hôm nay</a>
                       </div>
                     </v-date-picker>
                   </div>
                 </div>
                 <div class="Gender flex-col">
-                  <div class="label-gender">Giới tính</div>
+                  <div class="label-gender" style="line-height: 16px">
+                    Giới tính
+                  </div>
                   <div class="radio-gender">
                     <input
                       v-model="employee.gender"
@@ -161,13 +158,14 @@
                   <input
                     v-model="employee.identityNumber"
                     ref="identityNumber"
+                    class="input-normal"
                     type="text"
                     name="EntityCard"
                   />
                 </div>
                 <div class="DateSupply flex-col" id="picker_identitydate">
                   <label for="identitydate">Ngày cấp</label>
-                  <div class="input-date">
+                  <div class="input-date" style="margin-top: 5px">
                     <input
                       v-model="employee.identityDate"
                       type="text"
@@ -176,11 +174,7 @@
                       autocomplete="off"
                     />
                     <div
-                      @click="
-                        () => {
-                          showIdentityDate = !showIdentityDate;
-                        }
-                      "
+                      @click="() => {showIdentityDate = !showIdentityDate;}"
                       class="div-icon-datepicker"
                     >
                       <img src="../Resource/img/date_picker.svg" alt="" />
@@ -199,13 +193,7 @@
                     >
                       <div class="date_picker_footer">
                         <a
-                          href="#"
-                          @click="
-                            () => {
-                              employee.identityDate = getCurrentDay();
-                              showIdentityDate = false;
-                            }
-                          "
+                          href="#" @click="() => {  employee.identityDate = getCurrentDay();  showIdentityDate = false;}"
                         >
                           Hôm nay</a
                         >
@@ -219,6 +207,7 @@
                 <input
                   v-model="employee.identityPlace"
                   ref="identityPlace"
+                  class="input-normal"
                   type="text"
                   name="AddressSuplly"
                 />
@@ -230,6 +219,7 @@
               <label for="Address">Địa chỉ</label>
               <input
                 v-model="employee.address"
+                class="input-normal"
                 ref="addresss"
                 type="text"
                 name="Address"
@@ -240,8 +230,9 @@
                 <label for="PhoneNumber">ĐT di động</label>
                 <input
                   v-model="employee.phoneNumber"
+                  class="input-normal"
                   ref="phoneNumber"
-                  type="text"
+                  type="number"
                   name="PhoneNumber"
                 />
               </div>
@@ -249,8 +240,9 @@
                 <label for="TelephoneNumber">ĐT cố định</label>
                 <input
                   v-model="employee.telephoneNumber"
+                  class="input-normal"
                   ref="telephoneNumber"
-                  type="text"
+                  type="number"
                   name="TelephoneNumber"
                 />
               </div>
@@ -258,6 +250,7 @@
                 <label for="Email">Email</label>
                 <input
                   v-model="employee.email"
+                  class="input-normal"
                   ref="email"
                   type="email"
                   name="Email"
@@ -269,8 +262,9 @@
                 <label for="BankAccountNumber">Tài khoản ngân hàng</label>
                 <input
                   v-model="employee.bankAccountNumber"
+                  class="input-normal"
                   ref="bankAccountNumber"
-                  type="text"
+                  type="number"
                   name="BankAccountNumber"
                 />
               </div>
@@ -278,6 +272,7 @@
                 <label for="BankName">Tên ngân hàng</label>
                 <input
                   v-model="employee.bankName"
+                  class="input-normal"
                   ref="bankName"
                   type="text"
                   name="BankName"
@@ -287,6 +282,7 @@
                 <label for="BankBranchName">Tên chi nhánh</label>
                 <input
                   v-model="employee.bankBranchName"
+                  class="input-normal"
                   ref="bankBranchName"
                   type="text"
                   name="BankBranchName"
@@ -302,10 +298,17 @@
           Hủy
         </button>
         <div class="float-right">
-          <button v-on:click="save()" class="btn-save btn-primary">Cất</button>
+          <button
+            v-on:click="save()"
+            class="btn-save btn-primary"
+            title="Cất (Ctrl+S)"
+          >
+            Cất
+          </button>
           <button
             v-on:click="saveAndAdd()"
             class="btn-saveAndadd btn-secondary"
+            title="Cất và Thêm (Ctrl + Shift + S)"
             ref="saveAndAdd"
           >
             Cất và Thêm
@@ -315,9 +318,9 @@
       </div>
     </div>
     <div v-if="loading" class="wrap-loading">
-        <div class="loading" style="width:fit-content;height:32px;">
-          <img style="" src="../Resource/loading.svg" alt="">
-        </div>
+      <div class="loading" style="width: fit-content; height: 32px">
+        <img style="" src="../Resource/loading.svg" alt="" />
+      </div>
     </div>
   </div>
 </template>
@@ -382,7 +385,7 @@ export default {
     showForm() {
       // mở form
       this.showFormDetail = true;
-      this.cEmployee = {...this.employee};
+      this.cEmployee = { ...this.employee };
       // auto focus vào input đầu và bôi đen hết text bên trong nếu có
       this.focusAndSelectAll();
     },
@@ -467,12 +470,14 @@ export default {
       this.increaseCode();
     },
 
-    preCancelForm(){
+    // kiểm tra xem dữ liệu đã thay đổi hay chưa, nếu đã thay đổi thì hiện message thông báo,
+    // nếu chưa thì thực hiện đóng form
+    preCancelForm() {
       let employee1 = JSON.stringify(this.cEmployee);
       let employee2 = JSON.stringify(this.employee);
-      if(employee1 != employee2){
+      if (employee1 != employee2) {
         EventBus.$emit("showWarningDataChange");
-      }else{
+      } else {
         this.cancelFormDetail();
       }
     },
@@ -533,20 +538,29 @@ export default {
       let me = this;
       let employee = { ...me.employee };
       // chuyển date hiển thị thành date server
-      if(employee.dateOfBirth == null || employee.dateOfBirth == undefined || employee.dateOfBirth ==""){
+      if (
+        employee.dateOfBirth == null ||
+        employee.dateOfBirth == undefined ||
+        employee.dateOfBirth == ""
+      ) {
         employee.dateOfBirth = null;
-      }else{
+      } else {
         employee.dateOfBirth = me.dateOfBirth_PK;
       }
 
-      if(employee.identityDate == null || employee.identityDate == undefined || employee.identityDate ==""){
+      if (
+        employee.identityDate == null ||
+        employee.identityDate == undefined ||
+        employee.identityDate == ""
+      ) {
         employee.identityDate = null;
-      }else{
+      } else {
         employee.identityDate = me.identityDate_PK;
       }
       let employeeCode = employee.employeeCode.toUpperCase();
       // chèn thêm số 0 vào trước số mã nhân viên nếu mã chưa đủ 8 kí tự
-      employeeCode = employeeCode.substring(0, 2) + employeeCode.substr(2).padStart(5, "0");
+      employeeCode =
+        employeeCode.substring(0, 2) + employeeCode.substr(2).padStart(5, "0");
       employee.employeeCode = employeeCode;
       return employee;
     },
@@ -567,19 +581,23 @@ export default {
             await EventBus.$emit("loadDataServer");
             // nếu là ấn save thì ẩn form
             let mode = "Thêm mới";
-            EventBus.$emit("showSuccessBox", mode);
-            if (e == "save"){
+            // nếu là lưu thì thự hiện đóng form
+            if (e == "save") {
               me.cancelFormDetail();
               this.loading = false;
             }
+            // nếu là lưu và thêm mới thì reset form, tăng mã nhân viên lớn nhất thêm 1
             else {
               me.resetForm();
               await me.increaseCode();
-              me.loading = false
+              me.loading = false;
               me.focusAndSelectAll();
             }
+            // hiện thông báo thành công
+            EventBus.$emit("showSuccessBox", mode);
           })
           .catch((error) => {
+            // nếu có lỗi xảy ra thì hiện message thông báo lỗi và focus vào trường sai nếu có
             console.log(error);
             this.loading = false;
             let message = error.response.data.messengers[0],
@@ -598,20 +616,23 @@ export default {
             // reset form và load lại dữ liệu
             await EventBus.$emit("loadDataServer");
             let mode = "Sửa";
-            EventBus.$emit("showSuccessBox", mode);
             // nếu là ấn save thì ẩn form
-            if (e == "save"){
+            if (e == "save") {
               me.cancelFormDetail();
               this.loading = false;
             }
+            // nếu là lưu và thêm mới thì reset form và tăng mã nhân viên lớn nhất thêm 1
             else {
               me.resetForm();
               await me.increaseCode();
-              this.loading = false
+              this.loading = false;
               me.focusAndSelectAll();
             }
+            // hiện thông báo thành công
+            EventBus.$emit("showSuccessBox", mode);
           })
           .catch((error) => {
+            // nếu có lỗi thì hiện message thông báo, focus vào ô nhập liệu sai nếu có
             this.loading = false;
             let message = error.response.data.messengers[0],
               field = error.response.data.eFieldError;
@@ -623,11 +644,15 @@ export default {
     // xử lý sự kiên blur trên các input required
     handleBlur(e) {
       let value = e.target.value;
+      let id = e.target.id;
       if (!value) {
-        $(e.path[0]).addClass("bgc-red");
-        $(e.path[0]).attr("title", "Trường này không được để trống!");
+        document.getElementById(id).classList.add("bgc-red");
+        document
+          .getElementById(id)
+          .setAttribute("title", "Trường này không được để trống!");
       } else {
-        $(e.path[0]).removeClass("bgc-red");
+        document.getElementById(id).classList.remove("bgc-red");
+        document.getElementById(id).removeAttribute("title");
       }
     },
 
@@ -651,6 +676,7 @@ export default {
       return check;
     },
 
+    // hàm chuyển đổi tên trường thành tiếng việt
     convertToVNese(fieldName) {
       switch (fieldName) {
         case "employeeCode":
@@ -668,6 +694,7 @@ export default {
       }
     },
 
+    // hàm validate object trước khi thực hiện lưu
     validateObject() {
       let me = this;
       // validate mã nhân viên
@@ -711,21 +738,24 @@ export default {
       }
 
       // validate email
-      if(!me.validateEmail(me.employee.email)){
+      if (!me.validateEmail(me.employee.email)) {
         me.fieldMissingData = "email";
         me.messageContent = "Email không hợp lệ, vui lòng nhập lại.";
         return false;
-      } 
+      }
 
       return true;
     },
 
-    validateEmail(email){
-      if(email == "" || email == null) return true;
-      var reg_email = /^[a-zA-Z]{2}[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-        return reg_email.test(email);
+    // hàm validate email
+    validateEmail(email) {
+      if (email == "" || email == null) return true;
+      var reg_email =
+        /^[a-zA-Z]{2}[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      return reg_email.test(email);
     },
 
+    // hàm validate ngày tháng
     validateDate(date) {
       if (date == "" || date == null) return true;
       var date_regex =
@@ -733,6 +763,7 @@ export default {
       return date_regex.test(date);
     },
 
+    // chuyển kiểu ngày từ yyyy-mm-dd sang dd/mm/yyyy
     formatDate(e) {
       if (!this.employee.dateOfBirth) return null;
 
@@ -741,6 +772,7 @@ export default {
       // return `${month}/${day}/${year}`
     },
 
+    // hàm trả về ngày hiện tại dd/mm/yyyy
     getCurrentDay() {
       let today = new Date(),
         dd = String(today.getDate()).padStart(2, "0"),
@@ -749,20 +781,14 @@ export default {
       return dd + "/" + mm + "/" + yyyy;
     },
 
+    // sự kiện khi ấn tab
     tab() {
-      if ($(":focus") != undefined) {
-        if ($(":focus").attr("id") == "btn-last") {
-          this.$refs.employeeCode.focus();
-        }
-      }
+      this.$refs.employeeCode.focus();
     },
 
+    // sự kiện khi ấn shift tab
     shiftTab() {
-      if ($(":focus") != undefined) {
-        if ($(":focus").attr("id") == "btn-first") {
-          this.$refs.saveAndAdd.focus();
-        }
-      }
+      this.$refs.saveAndAdd.focus();
     },
 
     // sự kiện khi chọn date ở date-picker ngày sinh
@@ -813,26 +839,27 @@ export default {
         return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     },
 
-    async increaseCode(){
+    // hàm tăng mã nhân viên lớn nhất trong csdl thêm 1
+    async increaseCode() {
       let url = "http://localhost:8080/api/v1/Employees/GetMaxCode";
       let maxCode = "";
       let me = this;
       await axios
         .get(url)
         .then((res) => {
-         maxCode = res.data.substr(3);
-         maxCode = parseInt(maxCode) + 1;
-         maxCode= maxCode.toString().padStart(5, "0");
-         if(maxCode < 100000)
-          me.employee.employeeCode = res.data.substr(0,3) + maxCode;
+          maxCode = res.data.substr(3);
+          maxCode = parseInt(maxCode) + 1;
+          maxCode = maxCode.toString().padStart(5, "0");
+          if (maxCode < 100000)
+            me.employee.employeeCode = res.data.substr(0, 3) + maxCode;
         })
         .catch((err) => {
           console.log(err);
         });
-    }
+    },
   },
 
-  created () {
+  created() {
     this.increaseCode();
   },
 
@@ -850,24 +877,27 @@ export default {
     // bắt sự kiên thêm mới hoặc clone nhân viên nhân viên
     // nếu là clone thì nhận được 1 employee đầu vào
     EventBus.$on("addEmployee", async (employee) => {
-      if(employee != undefined){
+      if (employee != undefined) {
         let newCode = me.employee.employeeCode;
-        me.employee = {...employee};
+        me.employee = { ...employee };
         me.employee.employeeCode = newCode;
       }
       me.formMode = "add";
       me.showForm();
     });
 
+    // bắt sự kiện focus và chọn hết nếu có trong ô nhập liệu
     EventBus.$on("focusAndSelectAll", (field) => {
       me.focusAndSelectAll(field);
     });
 
-    EventBus.$on("cancelFormDetail",() =>{
+    // bắt sự kiện đóng form detail
+    EventBus.$on("cancelFormDetail", () => {
       this.cancelFormDetail();
     });
   },
 
+  // cập nhật ngày tháng trong input date và date picker nếu 1 trong 2 thay đổi
   updated: function () {
     this.$nextTick(function () {
       if (!this.employee.dateOfBirth) return null;

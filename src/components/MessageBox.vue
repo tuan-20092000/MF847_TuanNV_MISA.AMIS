@@ -135,6 +135,9 @@ export default {
             this.messageContent = message;
             this.error = true;
             this.field = field;
+            setTimeout(() =>
+                this.error = false, 2500
+            )
         },
 
         // hàm emit tắt form detail
@@ -153,6 +156,13 @@ export default {
         // hàm tắt success box
         cancelSuccessBox(){
             this.successBox = false;
+        },
+
+        showWarningDataChange(){
+            this.warningDataChange = true;
+            setTimeout(() =>
+                this.warningDataChange = false, 5000
+            )
         }
     },
 
@@ -169,7 +179,7 @@ export default {
 
         // lắng nghe sự kiện hiện form cảnh báo dữ liệu thay đổi
         EventBus.$on("showWarningDataChange", ()=>{
-            this.warningDataChange = true;
+            this.showWarningDataChange();
         });
 
         // lắng nghe sự kiện hiện success box

@@ -3,6 +3,8 @@
     class="main"
     @keyup.up.exact="arrowUp()"
     @keyup.down.exact="arrowDown()"
+    @keydown.ctrl.192.exact="addEmployee()"
+    @keydown.delete.exact="showWarning()"
     @click="clickMain($event)"
   >
     <div class="main-title">
@@ -36,7 +38,9 @@
               ref="input"
               type="text"
               v-on:keyup.enter="searchKeyWord()"
+              @keydown.tab.prevent.stop="edit()"
               placeholder="Tìm theo mã, tên nhân viên"
+              autofocus
               autocomplete="off"
             />
             <img src="../Resource/img/find.svg" alt="search" />
@@ -241,7 +245,7 @@
 <script>
 import EventBus from "./../main.js";
 const axios = require("axios");
-export default {
+ export default {
   data() {
     return {
       employeeList: {}, // những nhân viên hiển thị lên màn hình
@@ -268,10 +272,13 @@ export default {
   },
 
   methods: {
+    // lấy số lượng bản ghi theo từ khóa tìm kiếm
     async getTotalRecord() {
       let me = this;
       this.loading = true;
+      // bỏ khoảng trắng 2 đầu từ khóa
       let keySearch = me.keySearch.trim();
+      // axios request
       await axios
         .request({
           method: "post",
@@ -280,6 +287,7 @@ export default {
           headers: { "Content-Type": "application/json" },
         })
         .then((res) => {
+          // nếu số lượng lớn hơn 0 thì thực hiện gán cho các biến
           if (res.data != "") me.countEmployee = res.data;
           else me.countEmployee = 0;
           me.selectedPage = 1;
@@ -287,6 +295,7 @@ export default {
           me.getDataServer();
         })
         .catch((err) => {
+          // nếu có lỗi thì hiện thông báo lỗi
           console.log(err);
           this.loading - false;
           let message =
@@ -299,7 +308,9 @@ export default {
     async getDataServer() {
       this.loading = true;
       let me = this;
+      // bỏ khoảng trắng 2 đầu 
       let keySearch = me.keySearch.trim();
+      // axios request
       await axios
         .request({
           method: "post",
@@ -312,11 +323,13 @@ export default {
           headers: { "Content-Type": "application/json" },
         })
         .then((res) => {
+          // nếu thành công thì thực hiện gán 
           me.employeeList = res.data;
           me.countPage = Math.ceil(me.countEmployee / me.countEmployeePerPage);
           this.loading = false;
         })
         .catch((err) => {
+          // nếu có lỗi thì hiện thông báo lỗi
           console.log(err);
           this.loading = false;
           let message =
@@ -332,12 +345,14 @@ export default {
       await axios
         .delete(url)
         .then((res) => {
+          // nếu thành công thì hiện message box thông báo xóa thành công
           console.log(res);
           this.loading = false;
           let mode = "Xóa";
           EventBus.$emit("showSuccessBox", mode);
         })
         .catch((err) => {
+          // nếu có lỗi xảy ra thì hiện thông báo lỗi
           this.loading = false;
           console.log(err);
           let message =
@@ -358,19 +373,23 @@ export default {
 
     // sự kiện khi ấn sửa
     edit(index) {
-      let employee = this.employeeList[index];
+      let employee = null;
+      if(index == undefined){
+        employee = this.employeeList[this.selectedRow];
+      }
+      else employee = this.employeeList[index];
       employee.dateOfBirth = this.convertDate(employee.dateOfBirth);
       employee.identityDate = this.convertDate(employee.identityDate);
       EventBus.$emit("editEmployee", employee);
     },
 
-    // hàm lấy dữ liệu từ server cho trang thứ page
+    // hàm lấy dữ liệu từ server cho trang được chọn
     getDataPage() {
       this.selectedRow = 0;
       this.getDataServer();
     },
 
-    // thay đổi số lượng nhân viên hiển thị trên 1 trang
+    // hàm khi thay đổi số lượng nhân viên hiển thị trên 1 trang
     changeCountPerPage() {
       this.selectedRow = 0;
       this.selectedPage = 1;
@@ -470,8 +489,10 @@ export default {
     // lắng nghe sự kiên xóa nhân viên
     EventBus.$on("deleteEmployee", employee => {
       this.deleteEmployee(employee);
-    })
+    });
   },
+
+  
 };
 </script>
 

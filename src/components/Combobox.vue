@@ -1,10 +1,12 @@
 <template>
     <div class="combo-box-wraper" id="combo-box" v-on:keyup.38 = "moveUp()" 
         v-on:keyup.40 = "moveDown()" v-on:keyup.enter = "selectedByEnter()" >
-        <div class="combo-box-wrap" v-on:change = "search()" :class="{'no-data':!valid ,'active':isactive}" :style="[widthLength, heightLength]">
+        <div class="combo-box-wrap" id="wrap-input-cbx" v-on:change = "search()" :class="{'no-data':!valid ,'active':isactive}" :style="[widthLength, heightLength]">
             <input type="text"
                 v-model="selectValue.text" 
+                class=".input-cbx"
                 @blur="handleBlur($event)"
+                @focus="focusInput()"
                 v-on:input="search()" ref="departmentName"
                 name="departmentName"
                 autocomplete="off"
@@ -31,10 +33,12 @@
 <script>
 export default {
     props:{
+        // kích thực của combobox
         width:Number,
         height:Number,
         // thông tin của các select trong combo box
         data:Array,
+        // tên đơn vị
         departmentName: String,
     },
     data(){
@@ -75,7 +79,7 @@ export default {
         document.addEventListener('mouseup', function(e) {
         var container = document.getElementById('combo-box');
         if (container!=null && !container.contains(e.target)) {
-            me.hideform();
+            me.hideForm();
             me.isactive = false;
             if(me.selectValue.text != undefined && me.selectValue.text != '') {
                 me.checkValue();
@@ -95,6 +99,7 @@ export default {
                 }
             }
         }
+
     },
 
     methods:{
@@ -144,11 +149,16 @@ export default {
                 }
                 else{
                     // nếu không có giá trị nào khớp: đóng form, hiện invalid
-                    me.hideform();
+                    me.hideForm();
                     me.valueInvalid();
                 }
             }
         },
+
+        focusInput(){
+            document.getElementById("wrap-input-cbx").classList.add("active");
+        },
+
         getValue(){
             return this.selectValue.value;
         },
@@ -156,14 +166,14 @@ export default {
             return this.selectValue.text;
         },
         // ẩn form đi
-        hideform(){
+        hideForm(){
             this.isShow = false;
         },
         // lựa chọn 1 giá trị
         select(value){
             let me = this;
             me.selectValue = {...value};
-            me.hideform();
+            me.hideForm();
             me.valueValid();
             me.$el.value = me.selectValue.value;
             me.$el.text = me.selectValue.text;
@@ -239,7 +249,9 @@ export default {
             this.selectValue = {};
         },
 
-        handleBlur(e){
+        handleBlur(e){  
+            this.$el.firstElementChild.classList.remove("active");
+            this.hideForm();
             if(this.selectValue.text == null || this.selectValue.text==""){
                 this.valid = false;
                 this.$el.firstElementChild.setAttribute("title", 'Trường này không được để trống');
@@ -283,7 +295,7 @@ export default {
         border: none;
         outline: 0;
         width: 100%;
-        padding: 5px;
+        padding: 6px 10px;
         font-size:13px ;
     }
     .combo-box-wrap .combo-select-show{

@@ -132,7 +132,7 @@
 }
 
 
-.wrap-form input[type="text"], input[type="date"], input[type="email"]{
+.wrap-form input[type="text"], input[type="date"], input[type="email"], input[type="number"]{
     width: 100%;
     height: 32px;
     border: 1px solid #babec5;
@@ -187,10 +187,9 @@
     border: 1px solid #babec5;
 }
 
-.wrap-form .Gender{
+ .wrap-form .Gender{
     flex: 1;
     padding-left: 10px;
-    padding-top: 3px;
 }
 
 .wrap-form .Gender .label-gender{
@@ -201,7 +200,7 @@
 
 .wrap-form .Gender .radio-gender{
     flex: 1;
-    margin-top: 5px;
+    margin-top: 7px;
     display: flex;
     align-items: center;
 }
@@ -278,8 +277,8 @@
     background-color: #248b15;
 }
 
-.wrap-form input:focus{
-   border: 1px solid #2ca01c ;
+.wrap-form .input-normal:focus{
+   border: 1px solid #2ca01c !important;
 }
 
 .wrap-form input.bgc-red{
@@ -319,3 +318,55 @@
     background-color: rgba(44,160,28,.2);
     color: #08bf1e !important;
 }
+
+
+/* .label-radion-gender{
+    display: inline-block;
+    position:relative;
+    cursor:pointer;
+    font-size:13px;
+    user-select: none;
+    padding-left: 27px;
+    width: fit-content;
+  }
+  .label-radion-gender input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .checkmark{
+    position:absolute;
+    top:0;
+    left:0;
+    width:18px;
+    height:18px;
+    background:#fff;
+    border-radius:50%;
+    box-sizing:  border-box;
+    border: none;
+    outline: none;
+    border: 1px solid #babec5
+  }
+   .label-radion-gender:hover .checkmark{
+    background:#ccc;
+  }
+  .checkmark:after{
+    content:"";
+    position:absolute;
+    display:none;
+  }
+  .label-radion-gender .checkmark:after{
+    top:51%;
+    left:51%;
+    width: 14px;
+    height: 14px;
+    border-radius:50%;
+    border: solid 3px #fff;
+    transform:translate(-50%,-50%) rotate(45deg);
+  }
+  .label-radion-gender input:checked ~ .checkmark{
+    background:green;
+  }
+  .label-radion-gender input:checked ~ .checkmark:after{
+    display:block;
+  } */
